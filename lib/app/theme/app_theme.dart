@@ -51,9 +51,9 @@ class SemanticColors extends ThemeExtension<SemanticColors> {
       t < 0.5 || other is! SemanticColors ? this : other;
 }
 
-/// Bundled UI typeface. Null until the IBM Plex Sans files are added under
-/// assets/fonts/ (Phase 1 checklist); the platform default is used meanwhile.
-const String? kAppFontFamily = null;
+/// Bundled UI typeface (IBM Plex Sans 1.1.0, SIL OFL) declared in pubspec.yaml
+/// from assets/fonts/. Never fetched at runtime.
+const String kAppFontFamily = 'IBM Plex Sans';
 
 TextTheme _textTheme(Color primary, Color secondary) {
   TextStyle style(double size, double height, FontWeight weight, Color color) =>

@@ -1,0 +1,3 @@
+tags:
+  # Pixel comparisons; macOS only (font rendering differs per platform).
+  golden:
