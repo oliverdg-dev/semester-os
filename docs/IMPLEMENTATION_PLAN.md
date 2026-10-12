@@ -85,7 +85,7 @@ These came out of the review and change the brief's phase order. Until the owner
 - [x] Dependencies added with `flutter pub add` after checking each on pub.dev (license, points, publisher); ARCHITECTURE §4 updated with resolved versions. `sqlite3_flutter_libs` is end-of-life, so `sqlite3` 3.x (bundled SQLite) is used directly; `drift_flutter` not needed. `flutter pub outdated`: all direct and dev dependencies up to date.
 - [x] `packages/semester_scheduler` pure Dart package with `SchedulerConfig`/`ScoringWeights`/`TaskType`/`TaskPriority`. Verified: `dart test` 8/8 (purity test: no Flutter/Drift imports, no Flutter dependency; config defaults parsed from SCHEDULING_ALGORITHM §7).
 - [x] Scripts `tool/bootstrap.sh`, `tool/check.sh`, `tool/gen.sh`, `tool/test_integration.sh`.
-- [ ] Clean-clone verification: fresh clone → `tool/bootstrap.sh` → `flutter analyze` with no missing generated symbols; measured time recorded in README.
+- [x] Clean-clone verification: fresh clone → `tool/bootstrap.sh` → `flutter analyze` with no missing generated symbols; measured time recorded in README. 2026-10-12: `git clone` of `16e803e` + `tool/bootstrap.sh` (exit 0, "Ready in 35s") + `flutter analyze` (No issues found) = 42 s wall clock on macOS with a warm pub cache.
 - [x] Codegen policy: `*.g.dart` gitignored; bootstrap, gen and CI run build_runner.
 - [x] Theme tokens in `lib/app/theme/` (light/dark palettes, semantic colors extension, subject palette, type scale, spacing, radii, motion with reduced-motion helper, width classes). Verified: `test/theme/contrast_test.dart` (every text/background pair ≥ 4.5:1, outlines and subject colors ≥ 3:1, both themes).
 - [ ] Bundle IBM Plex Sans (OFL) in `assets/fonts/` and set `kAppFontFamily`; until then the platform font is used. Light/dark goldens wait for the bundled font.
@@ -97,7 +97,7 @@ These came out of the review and change the brief's phase order. Until the owner
 - [x] Drift `AppDatabase` skeleton (schema v1, no tables yet) opened through DbGuard (`quick_check`, `user_version`); minimal recovery screen with the error code. Verified: DbGuard tests (missing, healthy, not-a-database, newer version, corruption codes, Drift opens a real file).
 - [x] Error catalogue test: every Failure class has a docs/ERRORS.md row.
 - [x] Smoke tests: boots to Today empty state; each destination shows its documented empty state; Settings > About & diagnostics works.
-- [ ] CI (GitHub Actions): workflow written (`tool/check.sh` + debug APK); verified only after its first run on GitHub.
+- [x] CI (GitHub Actions): workflow written (`tool/check.sh` + debug APK); verified only after its first run on GitHub. 2026-10-12: run 38257011464 on `16e803e` passed (format, analyze, tests, debug APK; 7 min 12 s).
 - [x] Android debug build (`flutter build apk --debug`) result recorded. 2026-10-12: exit 0, `build/app/outputs/flutter-apk/app-debug.apk` (first run 193 s; Gradle auto-installed SDK Platform 36 and CMake 3.22.1).
 - [ ] iOS simulator build (`flutter build ios --simulator --no-codesign`) result recorded; CocoaPods requirement noted. 2026-10-12: **failed (exit 1)** on this machine: Xcode 26.6 reports "iOS 26.5 is not installed" (only the iOS 17.5 simulator runtime is present). Not a project error. Fix: Xcode > Settings > Components, or `xcodebuild -downloadPlatform iOS`, then re-run. CocoaPods: not needed (the project resolves plugins through Swift Package Manager).
 - [x] README stub and CHANGELOG.md.
