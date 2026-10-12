@@ -90,6 +90,7 @@ Pinned toolchain: **Flutter 3.47.7, Dart 3.13.5** (observed after the 2026-10-12
 | uuid | ids | 4.6.0 | MIT | none |
 | intl | dates, numbers | 0.20.3 | BSD-3 | none |
 | fl_chart | insights charts | 1.2.0 | MIT | none |
+| cupertino_icons | iOS icons (BD6), added Phase 2 | 2.0.0 (flutter.dev, 160/160 points) | MIT | none |
 | flutter_lints | lints | 6.0.0 | BSD-3 | none |
 | flutter_local_notifications | reminders | added in Phase 7 | BSD-3 (re-check then) | none |
 | file save/pick | backup export/import | chosen in Phase 7 spike | to verify | none |
