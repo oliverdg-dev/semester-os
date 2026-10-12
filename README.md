@@ -71,8 +71,8 @@ GitHub Actions (`.github/workflows/ci.yml`) runs `tool/check.sh` and a debug APK
 ## Known limitations
 
 - Early development: only the app shell exists. Features land phase by phase.
-- The bundled typeface (IBM Plex Sans) is not added yet; the platform font is used.
-- Build status (measured 2026-10-12 on macOS, Flutter 3.47.7): the Android debug APK builds. The iOS simulator build has **not** been verified yet: the build machine was missing the iOS 26.5 simulator platform that Xcode 26.6 needs (install it from Xcode > Settings > Components). CocoaPods is not required; plugins resolve through Swift Package Manager.
+- Build status (measured 2026-10-12 on macOS, Flutter 3.47.7): the Android debug APK and the iOS simulator build both succeed. Xcode 26.6 needs the iOS 26.5 platform installed first (Xcode > Settings > Components, or `xcodebuild -downloadPlatform iOS`); `tool/bootstrap.sh` tells you when it is missing. CocoaPods is not required; plugins resolve through Swift Package Manager.
+- Golden tests (`flutter test --tags golden`) are compared on macOS only and are not part of `tool/check.sh`.
 
 ## Costs
 

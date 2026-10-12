@@ -1,6 +1,6 @@
 # SemesterOS Design System
 
-Status: tokens implemented in `lib/app/theme/tokens.dart` (Phase 1, 2026-10-12); `test/theme/contrast_test.dart` recomputes every ratio below and fails if any drops under its target. IBM Plex Sans is not bundled yet (see §3).
+Status: tokens implemented in `lib/app/theme/tokens.dart` (Phase 1, 2026-10-12); `test/theme/contrast_test.dart` recomputes every ratio below and fails if any drops under its target. IBM Plex Sans 1.1.0 is bundled (see §3).
 
 ## 1. Brand
 
@@ -75,7 +75,7 @@ Used as a swatch next to the subject name (never as the only identifier).
 
 ## 3. Typography
 
-- Typeface: **IBM Plex Sans** (SIL OFL), to be bundled in `assets/fonts/` (Regular 400, Medium 500, SemiBold 600) and set via `kAppFontFamily` in `lib/app/theme/app_theme.dart`. Until the files are added the platform default font is used. No runtime font fetching (google_fonts runtime loading breaks offline-first).
+- Typeface: **IBM Plex Sans** (SIL OFL), bundled in `assets/fonts/` (Regular 400, Medium 500, SemiBold 600, version 1.1.0, licence in `assets/fonts/OFL.txt`) and set via `kAppFontFamily` in `lib/app/theme/app_theme.dart`; `test/theme/font_test.dart` checks the files, the pubspec weights and that every text style uses it. No runtime font fetching (google_fonts runtime loading breaks offline-first).
 - Tabular figures (`FontFeature.tabularFigures()`) for times, durations, timers and numbers in tables.
 - Scale (logical px / line height): display 32/40 SemiBold · title 24/32 SemiBold · heading 20/28 SemiBold · body 16/24 Regular · bodySmall 14/20 Regular · label 14/20 Medium · caption 12/16 Regular.
 - Body text is never below 16. Captions are for metadata only, never for actions or warnings.

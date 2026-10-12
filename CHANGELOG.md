@@ -9,6 +9,7 @@
 - Router with four destinations and adaptive navigation (bottom bar, rail, extended rail).
 - Error handling: coded failures, global handlers, provider error logging, diagnostics without personal content.
 - Drift database skeleton opened through DbGuard (integrity and version checks).
+- IBM Plex Sans 1.1.0 bundled (Regular, Medium, SemiBold; SIL OFL) and used by every text style; light/dark goldens of the Today empty state.
 - Developer scripts (`tool/bootstrap.sh`, `tool/check.sh`, `tool/gen.sh`, `tool/test_integration.sh`) and GitHub Actions CI.
 
 ### Phase 0: Planning

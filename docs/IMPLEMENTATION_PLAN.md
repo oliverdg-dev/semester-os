@@ -11,7 +11,7 @@ Companion docs: [ARCHITECTURE](ARCHITECTURE.md) · [SCHEDULING_ALGORITHM](SCHEDU
 | Phase | State |
 |---|---|
 | 0. Audit and planning | **Done** (2026-10-12): repo audited, plan reviewed (CEO, design, DX, eng), all planning docs written |
-| 1. Foundation | In progress |
+| 1. Foundation | **Done** (2026-10-12): every item below verified; Android and iOS simulator builds pass; CI green |
 | 2-9 | Not started |
 
 ## 0. Repository audit (2026-10-12)
@@ -39,6 +39,7 @@ Companion docs: [ARCHITECTURE](ARCHITECTURE.md) · [SCHEDULING_ALGORITHM](SCHEDU
 | BD2 | Flutter upgraded to current stable before Phase 1 | Owner, 2026-10-12 |
 | BD3 | No /office-hours; the brief is the design input | Owner, 2026-10-12 |
 | BD4 | Commits never list Claude as co-author; `CLAUDE.md` is local and gitignored | Owner, 2026-10-12 |
+| BD5 | UI and UX work goes through the **impeccable** skill (direction, critique, audit, polish; its native iOS/Android references) with **tasteskill** (`design-taste-frontend`) anti-slop rules and pre-flight check as a second lens, so screens do not look templated. tasteskill targets web landing pages, so only its anti-slop rules apply, not its web stack advice. Both run locally at no cost. See the design gate under Git and change management. | Owner, 2026-10-12 |
 
 ## Pending owner decisions
 
@@ -78,7 +79,7 @@ These came out of the review and change the brief's phase order. Until the owner
 - [x] Deferred ideas recorded in TODOS.md.
 - [x] `.gitignore` excludes `CLAUDE.md`; `CLAUDE.md` holds the no-co-author rule.
 
-### Phase 1 — Foundation (in progress, 2026-10-12)
+### Phase 1 — Foundation (done, 2026-10-12)
 
 - [x] `flutter create --org dev.oliverdg --project-name semester_os --platforms android,ios` in the repo root; docs and `.gitignore` untouched. App id `dev.oliverdg.semester_os`.
 - [x] Toolchain pin: `.fvmrc` = 3.47.7 and `environment.flutter: 3.47.7` in pubspec; README explains fvm or PATH. Verified: with `.fvmrc` set to 3.99.0, `tool/check.sh` exits 1 with "Flutter 3.47.7 is active but this repo pins 3.99.0" and the fix command.
@@ -88,7 +89,7 @@ These came out of the review and change the brief's phase order. Until the owner
 - [x] Clean-clone verification: fresh clone → `tool/bootstrap.sh` → `flutter analyze` with no missing generated symbols; measured time recorded in README. 2026-10-12: `git clone` of `16e803e` + `tool/bootstrap.sh` (exit 0, "Ready in 35s") + `flutter analyze` (No issues found) = 42 s wall clock on macOS with a warm pub cache.
 - [x] Codegen policy: `*.g.dart` gitignored; bootstrap, gen and CI run build_runner.
 - [x] Theme tokens in `lib/app/theme/` (light/dark palettes, semantic colors extension, subject palette, type scale, spacing, radii, motion with reduced-motion helper, width classes). Verified: `test/theme/contrast_test.dart` (every text/background pair ≥ 4.5:1, outlines and subject colors ≥ 3:1, both themes).
-- [ ] Bundle IBM Plex Sans (OFL) in `assets/fonts/` and set `kAppFontFamily`; until then the platform font is used. Light/dark goldens wait for the bundled font.
+- [x] Bundle IBM Plex Sans (OFL) in `assets/fonts/` and set `kAppFontFamily`; until then the platform font is used. Light/dark goldens wait for the bundled font. 2026-10-12: IBM Plex Sans 1.1.0 (`@ibm/plex-sans@1.1.0` release of github.com/IBM/plex) Regular/Medium/SemiBold TTF + `OFL.txt`, declared in pubspec. Verified: `test/theme/font_test.dart` (files, pubspec weights, every text style uses the family); renders on the Pixel Fold API 35 emulator; goldens `test/goldens/today_golden_test.dart` (Today empty state compact light/dark, expanded light; tag `golden`, macOS only, excluded from `tool/check.sh`) pass with `flutter test --tags golden`.
 - [x] App shell: GoRouter (`StatefulShellRoute`, route-name constants), AdaptiveShell (NavigationBar < 600, rail 600-839, extended rail ≥ 840), Settings in the header, quick-add and mini session bar slots that stay hidden until their features exist. Verified: widget tests at 360/700/1024 dp; no overflow at text scale 2.0 at all three widths.
 - [x] ProviderScope retry policy `noRetry` (DB reads opt in to `databaseReadRetry`, used from Phase 2). Verified: failing provider evaluated once, ErrorState shown, one log entry.
 - [x] Global error handling: `FlutterError.onError` + `PlatformDispatcher.instance.onError` + `ErrorLogObserver` → ring buffer (code, type, stack frames only, 200 entries); `AsyncValueView` renders ErrorState with code. Verified: tests incl. a message containing a task title that never reaches diagnostics.
@@ -99,11 +100,12 @@ These came out of the review and change the brief's phase order. Until the owner
 - [x] Smoke tests: boots to Today empty state; each destination shows its documented empty state; Settings > About & diagnostics works.
 - [x] CI (GitHub Actions): workflow written (`tool/check.sh` + debug APK); verified only after its first run on GitHub. 2026-10-12: run 38257011464 on `16e803e` passed (format, analyze, tests, debug APK; 7 min 12 s).
 - [x] Android debug build (`flutter build apk --debug`) result recorded. 2026-10-12: exit 0, `build/app/outputs/flutter-apk/app-debug.apk` (first run 193 s; Gradle auto-installed SDK Platform 36 and CMake 3.22.1).
-- [ ] iOS simulator build (`flutter build ios --simulator --no-codesign`) result recorded; CocoaPods requirement noted. 2026-10-12: **failed (exit 1)** on this machine: Xcode 26.6 reports "iOS 26.5 is not installed" (only the iOS 17.5 simulator runtime is present). Not a project error. Fix: Xcode > Settings > Components, or `xcodebuild -downloadPlatform iOS`, then re-run. CocoaPods: not needed (the project resolves plugins through Swift Package Manager).
+- [x] iOS simulator build (`flutter build ios --simulator --no-codesign`) result recorded; CocoaPods requirement noted. 2026-10-12: first attempt failed (exit 1) because Xcode 26.6 needed the iOS 26.5 platform (not a project error). After `xcodebuild -downloadPlatform iOS` (iOS 26.5 23F77 installed): exit 0, `build/ios/iphonesimulator/Runner.app`, 119 s. CocoaPods: not needed (plugins resolve through Swift Package Manager). `tool/bootstrap.sh` reports a missing iOS platform with the fix.
 - [x] README stub and CHANGELOG.md.
 
 ### Phase 2 — Database and core data
 
+- [ ] Design direction (BD5) before the first real screen: run `/impeccable` `init` (writes PRODUCT.md and DESIGN.md from the brief and docs/DESIGN_SYSTEM.md, platform `adaptive`) and `critique` on the current shell and tokens on the emulator and simulator; apply tasteskill's anti-slop rules and pre-flight check as a second lens. Reconcile accepted changes into DESIGN_SYSTEM (tokens, type scale, components) and the contrast test. Verify: PRODUCT.md and DESIGN.md committed; DESIGN_SYSTEM changes listed with the reason; contrast and font tests pass; goldens refreshed on purpose.
 - [ ] Schema v1 exactly as ARCHITECTURE §5 (all tables, columns, checks, indexes, `one_live_session` partial index, DataVersion triggers on scheduler-input tables and scheduling settings columns only). Verify: schema snapshot test lists every column; fresh DB has exactly one Settings row; trigger tests: a task edit bumps DataVersion, a theme change and a nudge dismissal do not.
 - [ ] `drift_schemas/drift_schema_v1.json` committed with generated migration-test scaffolding.
 - [ ] DbGuard: `user_version` and `quick_check` before Drift opens; `VACUUM INTO` backup helper; recovery screen (Restore / Start fresh moving db + -wal + -shm / Show details); runtime corrupt-code routing. Verify: fixtures for an uncheckpointed-WAL database, a header-valid corrupt file and a newer `user_version`.
@@ -168,7 +170,7 @@ All rules from SCHEDULING_ALGORITHM.md, in `packages/semester_scheduler`.
 - [ ] Undo snackbar 10 s announced to screen readers; Undo does not survive navigation; undoing a task delete with planned sessions raises the banner.
 - [ ] Copy and confirmations from UX_FLOWS (delete, import, recovery, calibration).
 - [ ] Simulator/emulator pass: iPhone SE 3, iPhone 15 Pro Max, iPad mini, iPad Pro 13, Android phone + tablet emulators; split screen on iPad and Android tablet; results recorded.
-- [ ] Run /design-review on the running app (replaces mockups, which were skipped because the designer uses a paid API).
+- [ ] Run `/impeccable polish` and `audit` (native references) on every screen, then /design-review on the running app (replaces mockups, which were skipped because the designer uses a paid API); final tasteskill pre-flight check. Findings fixed or moved to TODOS.md with a reason.
 - [ ] Goldens run on macOS locally; in CI only while the repo is public.
 
 ### Phase 7 — Notifications and backups
@@ -207,3 +209,5 @@ Lane A: scheduler package (Phase 3) is independent of lanes B and C. Lane B: dat
 ## Git and change management
 
 Small, reviewable commits per checklist group. After each phase: format, analyze, test, fix regressions, update docs, and write a phase summary (files changed, commands run, actual results, known limitations). Never leave `main` knowingly broken. Commits are authored by the owner only, with no co-author trailers.
+
+**Design gate (BD5).** A phase that adds or changes screens (2, 4, 5, 6, 7) is not done until `/impeccable critique` and `audit` have run on those screens on a phone and a tablet (emulator or simulator, light and dark), tasteskill's pre-flight check has been applied, and every finding is either fixed or recorded in TODOS.md with a reason. The phase summary lists the findings and what happened to each.
