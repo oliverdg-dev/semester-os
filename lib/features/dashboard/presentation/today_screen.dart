@@ -1,21 +1,26 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
-import '../../../core/widgets/empty_state.dart';
+import '../../../core/time/clock_provider.dart';
 import '../../../core/widgets/page_scaffold.dart';
+import 'widgets/next_action_block.dart';
 
-/// Today. Phase 1 shows the no-tasks state from docs/UX_FLOWS.md §13; the
-/// next-action block and real data arrive in Phases 2 and 4.
-class TodayScreen extends StatelessWidget {
+/// Today (UX_FLOWS §3). The next-action block leads; sessions, progress and
+/// deadlines follow as their features land. Until tasks exist it shows the
+/// "No tasks" state; its Quick add button arrives with quick add (Phase 2).
+class TodayScreen extends ConsumerWidget {
   const TodayScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const PageScaffold(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final now = ref.watch(clockProvider).now();
+    return PageScaffold(
       title: 'Today',
-      body: EmptyState(
-        icon: Icons.today_outlined,
+      dateLine: DateFormat('EEEE d MMMM').format(now),
+      body: const NextActionBlock(
         headline: 'Add your first deadline',
-        message: 'SemesterOS plans the rest.',
+        supporting: 'SemesterOS plans the rest.',
       ),
     );
   }

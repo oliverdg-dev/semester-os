@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/widgets/adaptive_shell.dart';
@@ -13,12 +14,47 @@ abstract final class Routes {
   static const plan = 'plan';
   static const tasks = 'tasks';
   static const insights = 'insights';
-  static const settings = 'settings';
+
+  /// Top-level destinations in navigation order.
+  static const branches = [today, plan, tasks, insights];
+
+  /// Settings opens inside the current tab, so the tab bar or rail stays
+  /// visible and Back returns to where the student was.
+  static String settings(String branch) => '$branch.settings';
+  static String about(String branch) => '$branch.settings.about';
+
+  /// Settings route of the tab that [context] belongs to.
+  static String settingsHere(BuildContext context) =>
+      settings(branches[StatefulNavigationShell.of(context).currentIndex]);
+
+  /// About route of the tab that [context] belongs to.
+  static String aboutHere(BuildContext context) =>
+      about(branches[StatefulNavigationShell.of(context).currentIndex]);
 }
+
+GoRoute _branchRoute(String name, Widget screen) => GoRoute(
+  path: '/$name',
+  name: name,
+  builder: (_, _) => screen,
+  routes: [
+    GoRoute(
+      path: 'settings',
+      name: Routes.settings(name),
+      builder: (_, _) => const SettingsScreen(),
+      routes: [
+        GoRoute(
+          path: 'about',
+          name: Routes.about(name),
+          builder: (_, _) => const AboutDiagnosticsScreen(),
+        ),
+      ],
+    ),
+  ],
+);
 
 GoRouter buildRouter() {
   return GoRouter(
-    initialLocation: '/today',
+    initialLocation: '/${Routes.today}',
     routes: [
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) => AdaptiveShell(
@@ -31,47 +67,18 @@ GoRouter buildRouter() {
         ),
         branches: [
           StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/today',
-                name: Routes.today,
-                builder: (_, _) => const TodayScreen(),
-              ),
-            ],
+            routes: [_branchRoute(Routes.today, const TodayScreen())],
           ),
           StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/plan',
-                name: Routes.plan,
-                builder: (_, _) => const PlanScreen(),
-              ),
-            ],
+            routes: [_branchRoute(Routes.plan, const PlanScreen())],
           ),
           StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/tasks',
-                name: Routes.tasks,
-                builder: (_, _) => const TasksScreen(),
-              ),
-            ],
+            routes: [_branchRoute(Routes.tasks, const TasksScreen())],
           ),
           StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/insights',
-                name: Routes.insights,
-                builder: (_, _) => const InsightsScreen(),
-              ),
-            ],
+            routes: [_branchRoute(Routes.insights, const InsightsScreen())],
           ),
         ],
-      ),
-      GoRoute(
-        path: '/settings',
-        name: Routes.settings,
-        builder: (_, _) => const SettingsScreen(),
       ),
     ],
   );

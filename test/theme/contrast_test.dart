@@ -1,7 +1,9 @@
 import 'dart:math' as math;
-import 'dart:ui';
+
+import 'package:flutter/material.dart';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:semester_os/app/theme/app_theme.dart';
 import 'package:semester_os/app/theme/tokens.dart';
 
 /// WCAG 2.x contrast ratio between two opaque colors.
@@ -34,6 +36,7 @@ void main() {
         'attention': p.attention,
         'capacity': p.capacity,
         'success': p.success,
+        'danger': p.danger,
       };
 
       for (final t in texts.entries) {
@@ -57,6 +60,7 @@ void main() {
         'attention': (p.attention, p.attentionContainer),
         'capacity': (p.capacity, p.capacityContainer),
         'success': (p.success, p.successContainer),
+        'danger': (p.danger, p.dangerContainer),
       };
       for (final c in containers.entries) {
         test('${c.key} text on its container ≥ 4.5:1', () {
@@ -86,6 +90,94 @@ void main() {
             reason: s.toString(),
           );
         }
+      });
+
+      test('subject swatches are visibly distinct from accent and status '
+          'colors', () {
+        // Euclidean RGB distance on 0-255 channels; 50 is clearly different
+        // side by side; 40 between swatches.
+        double distance(Color a, Color b) => math.sqrt(
+          math.pow((a.r - b.r) * 255, 2) +
+              math.pow((a.g - b.g) * 255, 2) +
+              math.pow((a.b - b.b) * 255, 2),
+        );
+        // A swatch must not read as interactive (accent) or as a workload
+        // warning (capacity), which appear next to subject names.
+        final reserved = {'accent': p.accent, 'capacity': p.capacity};
+        for (final (i, s) in p.subjects.indexed) {
+          for (final r in reserved.entries) {
+            expect(
+              distance(s, r.value),
+              greaterThan(50),
+              reason: 'subject $i vs ${r.key}',
+            );
+          }
+          for (final (j, other) in p.subjects.indexed.skip(i + 1)) {
+            expect(
+              distance(s, other),
+              greaterThan(40),
+              reason: 'subject $i vs subject $j',
+            );
+          }
+        }
+      });
+
+      test('capacity is not red: workload warnings never look like errors', () {
+        final hsl = HSLColor.fromColor(p.capacity);
+        expect(hsl.hue, inInclusiveRange(200, 280));
+      });
+    });
+
+    group('$name Material color roles', () {
+      final s = schemeFor(name == 'light' ? Brightness.light : Brightness.dark);
+      final pairs = {
+        'onPrimary/primary': (s.onPrimary, s.primary),
+        'onPrimaryContainer/primaryContainer': (
+          s.onPrimaryContainer,
+          s.primaryContainer,
+        ),
+        'onSecondary/secondary': (s.onSecondary, s.secondary),
+        'onSecondaryContainer/secondaryContainer': (
+          s.onSecondaryContainer,
+          s.secondaryContainer,
+        ),
+        'onTertiary/tertiary': (s.onTertiary, s.tertiary),
+        'onTertiaryContainer/tertiaryContainer': (
+          s.onTertiaryContainer,
+          s.tertiaryContainer,
+        ),
+        'onError/error': (s.onError, s.error),
+        'onErrorContainer/errorContainer': (
+          s.onErrorContainer,
+          s.errorContainer,
+        ),
+        'onSurface/surface': (s.onSurface, s.surface),
+        'onSurfaceVariant/surface': (s.onSurfaceVariant, s.surface),
+        'onSurface/surfaceContainerHigh': (s.onSurface, s.surfaceContainerHigh),
+        'onSurface/surfaceContainerHighest': (
+          s.onSurface,
+          s.surfaceContainerHighest,
+        ),
+        'onSurfaceVariant/surfaceContainerHighest': (
+          s.onSurfaceVariant,
+          s.surfaceContainerHighest,
+        ),
+        'onInverseSurface/inverseSurface': (
+          s.onInverseSurface,
+          s.inverseSurface,
+        ),
+        'inversePrimary/inverseSurface': (s.inversePrimary, s.inverseSurface),
+      };
+      for (final pair in pairs.entries) {
+        test('${pair.key} ≥ 4.5:1', () {
+          expect(
+            contrast(pair.value.$1, pair.value.$2),
+            greaterThanOrEqualTo(4.5),
+          );
+        });
+      }
+      test('outline on surface ≥ 3:1', () {
+        expect(contrast(s.outline, s.surface), greaterThanOrEqualTo(3));
       });
     });
   }

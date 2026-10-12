@@ -52,4 +52,34 @@ void main() {
       }
     }
   });
+
+  test('numbers use tabular figures (DESIGN_SYSTEM §3)', () {
+    for (final brightness in Brightness.values) {
+      final styles = buildTheme(brightness).extension<AppTextStyles>()!;
+      for (final style in [
+        styles.numeric,
+        styles.numericLarge,
+        styles.timer,
+        styles.dateLine,
+      ]) {
+        expect(
+          style.fontFeatures,
+          contains(const FontFeature.tabularFigures()),
+        );
+        expect(style.fontFamily, kAppFontFamily);
+      }
+      expect(styles.timer.fontSize, greaterThan(48));
+    }
+  });
+
+  test('iOS bar titles use the system face; content stays IBM Plex Sans', () {
+    final ios = buildTheme(Brightness.light, platform: TargetPlatform.iOS);
+    expect(ios.appBarTheme.titleTextStyle?.fontFamily, kIosSystemFontFamily);
+    expect(ios.textTheme.headlineSmall?.fontFamily, kAppFontFamily);
+    final android = buildTheme(
+      Brightness.light,
+      platform: TargetPlatform.android,
+    );
+    expect(android.appBarTheme.titleTextStyle?.fontFamily, kAppFontFamily);
+  });
 }

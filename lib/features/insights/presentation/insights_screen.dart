@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/page_scaffold.dart';
@@ -11,7 +11,6 @@ class InsightsScreen extends StatelessWidget {
     return const PageScaffold(
       title: 'Insights',
       body: EmptyState(
-        icon: Icons.insights_outlined,
         headline: 'Insights appear after your first studied session',
         message: 'Start a session and come back here.',
       ),

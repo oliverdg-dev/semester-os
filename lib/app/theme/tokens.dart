@@ -19,10 +19,12 @@ class AppPalette {
     required this.attention,
     required this.capacity,
     required this.success,
+    required this.danger,
     required this.infoContainer,
     required this.attentionContainer,
     required this.capacityContainer,
     required this.successContainer,
+    required this.dangerContainer,
     required this.subjects,
   });
 
@@ -38,14 +40,24 @@ class AppPalette {
   final Color accentContainer;
   final Color info;
   final Color attention;
+
+  /// More work than time. A steady indigo ink, deliberately not red: the app
+  /// is honest about capacity without sounding an alarm (PRODUCT.md).
   final Color capacity;
   final Color success;
+
+  /// Real failures only (errors, destructive confirmations). Never used for
+  /// workload warnings.
+  final Color danger;
   final Color infoContainer;
   final Color attentionContainer;
   final Color capacityContainer;
   final Color successContainer;
+  final Color dangerContainer;
 
-  /// The 10-color subject palette, indexed by `subjects.colorIndex`.
+  /// The 10-color subject palette, indexed by `subjects.colorIndex`:
+  /// Blue, Plum, Green, Rose, Orange, Olive, Ochre, Sky, Slate, Brown.
+  /// Kept visibly apart from the accent and capacity colors (contrast test).
   final List<Color> subjects;
 
   static const light = AppPalette(
@@ -61,23 +73,25 @@ class AppPalette {
     accentContainer: Color(0xFFD5F0EC),
     info: Color(0xFF3B5B7A),
     attention: Color(0xFF8A5A00),
-    capacity: Color(0xFFB42318),
+    capacity: Color(0xFF52398F),
     success: Color(0xFF1E7A3C),
+    danger: Color(0xFFB42318),
     infoContainer: Color(0xFFE6EEF6),
     attentionContainer: Color(0xFFFFF1D6),
-    capacityContainer: Color(0xFFFDE7E5),
+    capacityContainer: Color(0xFFECE8F6),
     successContainer: Color(0xFFDFF3E5),
+    dangerContainer: Color(0xFFFDE7E5),
     subjects: [
-      Color(0xFF2563A8),
-      Color(0xFF0F766E),
-      Color(0xFF7A4FB5),
-      Color(0xFFB4235A),
-      Color(0xFFC2410C),
-      Color(0xFF4D7C0F),
-      Color(0xFFA16207),
-      Color(0xFF0E7490),
-      Color(0xFF6B7280),
-      Color(0xFF9F1239),
+      Color(0xFF255893),
+      Color(0xFF8F3D8F),
+      Color(0xFF339955),
+      Color(0xFF8E294B),
+      Color(0xFFA54312),
+      Color(0xFF719C1C),
+      Color(0xFFAA7B0E),
+      Color(0xFF1281A5),
+      Color(0xFF535A65),
+      Color(0xFF815637),
     ],
   );
 
@@ -94,23 +108,25 @@ class AppPalette {
     accentContainer: Color(0xFF12403B),
     info: Color(0xFF9DB8D6),
     attention: Color(0xFFF2C063),
-    capacity: Color(0xFFFF8A80),
+    capacity: Color(0xFFB09FDB),
     success: Color(0xFF7BD39A),
+    danger: Color(0xFFFF8A80),
     infoContainer: Color(0xFF1D2B3A),
     attentionContainer: Color(0xFF3A2C10),
-    capacityContainer: Color(0xFF3D1D1B),
+    capacityContainer: Color(0xFF29234A),
     successContainer: Color(0xFF173222),
+    dangerContainer: Color(0xFF3D1D1B),
     subjects: [
-      Color(0xFF7AA7E0),
-      Color(0xFF5EC4B6),
-      Color(0xFFB595E6),
-      Color(0xFFF07AA6),
-      Color(0xFFF5935C),
-      Color(0xFF9BCB5A),
-      Color(0xFFE2B04A),
-      Color(0xFF5CC3DB),
-      Color(0xFFA3AAB5),
-      Color(0xFFF2788F),
+      Color(0xFF7CAADE),
+      Color(0xFFC270C2),
+      Color(0xFF94DBAC),
+      Color(0xFFDA819E),
+      Color(0xFFEF986C),
+      Color(0xFFC0E774),
+      Color(0xFFF3C968),
+      Color(0xFF6CCEEF),
+      Color(0xFF9AA2AC),
+      Color(0xFFCEA88D),
     ],
   );
 }
@@ -156,6 +172,14 @@ enum WidthClass {
   compact,
   medium,
   expanded;
+
+  /// Layout class of a window. A window shorter than [compactMaxHeight] (a
+  /// phone in landscape) stays compact whatever its width
+  /// (RESPONSIVE_DESIGN §4).
+  static WidthClass ofSize(Size size) =>
+      size.height < compactMaxHeight ? WidthClass.compact : of(size.width);
+
+  static const double compactMaxHeight = 480;
 
   static WidthClass of(double width) {
     if (width < 600) return WidthClass.compact;
