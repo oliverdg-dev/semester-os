@@ -25,11 +25,11 @@ Companion docs: [ARCHITECTURE](ARCHITECTURE.md) · [SCHEDULING_ALGORITHM](SCHEDU
 | Android | SDK platforms 33/34/35, build-tools 35.0.0, JDK 21. Some SDK licenses are not accepted: the owner must run `flutter doctor --android-licenses` (debug builds and tests work without it). |
 | Existing features | None. |
 
-## Product framing [assumed, confirm with the owner]
+## Product framing (owner-confirmed 2026-10-12; full record in [PRODUCT.md](../PRODUCT.md))
 
-- **Persona:** undergraduate with 4-6 courses, phone-first, plans on Sunday evenings, checks the phone between classes.
-- **Success metric:** 5 real students use it for 3 consecutive weeks.
-- **Differentiators:** (1) explained scheduling that never silently moves the plan, (2) fully private with no account, (3) estimates that learn the student's real pace.
+- **Users:** any student (high school, undergraduate, graduate) with several courses or long projects; phone-first, glancing between classes, planning at a desk or on a tablet. The design must not assume one study rhythm, term length or grading system.
+- **Success metric:** 5 real students use it for 3 consecutive weeks [still assumed].
+- **Core promises:** (1) explained scheduling that never silently moves the plan, (2) fully private with no account, (3) estimates that learn the student's real pace, (4) honest about capacity: says early and plainly when the work does not fit.
 
 ## Binding decisions
 
@@ -40,6 +40,7 @@ Companion docs: [ARCHITECTURE](ARCHITECTURE.md) · [SCHEDULING_ALGORITHM](SCHEDU
 | BD3 | No /office-hours; the brief is the design input | Owner, 2026-10-12 |
 | BD4 | Commits never list Claude as co-author; `CLAUDE.md` is local and gitignored | Owner, 2026-10-12 |
 | BD5 | UI and UX work goes through the **impeccable** skill (direction, critique, audit, polish; its native iOS/Android references) with **tasteskill** (`design-taste-frontend`) anti-slop rules and pre-flight check as a second lens, so screens do not look templated. tasteskill targets web landing pages, so only its anti-slop rules apply, not its web stack advice. Both run locally at no cost. See the design gate under Git and change management. | Owner, 2026-10-12 |
+| BD6 | Platform design language is **adaptive**: iOS follows the HIG (Cupertino tab bar and navigation, sheets, switches, pickers, edge-swipe back), Android follows Material 3. One shared theme of tokens feeds both. | Owner, 2026-10-12 |
 
 ## Pending owner decisions
 
@@ -106,8 +107,8 @@ These came out of the review and change the brief's phase order. Until the owner
 ### Phase 2 — Database and core data
 
 - [ ] Design direction (BD5) before the first real screen: run `/impeccable` `init` (writes PRODUCT.md and DESIGN.md from the brief and docs/DESIGN_SYSTEM.md, platform `adaptive`) and `critique` on the current shell and tokens on the emulator and simulator; apply tasteskill's anti-slop rules and pre-flight check as a second lens. Reconcile accepted changes into DESIGN_SYSTEM (tokens, type scale, components) and the contrast test. Verify: PRODUCT.md and DESIGN.md committed; DESIGN_SYSTEM changes listed with the reason; contrast and font tests pass; goldens refreshed on purpose.
-- [ ] Schema v1 exactly as ARCHITECTURE §5 (all tables, columns, checks, indexes, `one_live_session` partial index, DataVersion triggers on scheduler-input tables and scheduling settings columns only). Verify: schema snapshot test lists every column; fresh DB has exactly one Settings row; trigger tests: a task edit bumps DataVersion, a theme change and a nudge dismissal do not.
-- [ ] `drift_schemas/drift_schema_v1.json` committed with generated migration-test scaffolding.
+- [x] Schema v1 exactly as ARCHITECTURE §5 (all tables, columns, checks, indexes, `one_live_session` partial index, DataVersion triggers on scheduler-input tables and scheduling settings columns only). Verify: schema snapshot test lists every column; fresh DB has exactly one Settings row; trigger tests: a task edit bumps DataVersion, a theme change and a nudge dismissal do not. 2026-10-12: `test/core/database/schema_test.dart` 14/14 (columns per table, singleton rows and defaults, triggers incl. same-value setting update not bumping, live-session index, soft-delete-only FK, CHECK rejections, CHECK bounds equal `AppLimits`).
+- [x] `drift_schemas/drift_schema_v1.json` committed with generated migration-test scaffolding. 2026-10-12: `drift_schemas/app_database/drift_schema_v1.json` via `dart run drift_dev make-migrations` (build.yaml), helpers in `test/drift/app_database/generated/`. Verified: snapshot test passes, and fails for each planted change (CHECK bound, added column, changed index, removed trigger).
 - [ ] DbGuard: `user_version` and `quick_check` before Drift opens; `VACUUM INTO` backup helper; recovery screen (Restore / Start fresh moving db + -wal + -shm / Show details); runtime corrupt-code routing. Verify: fixtures for an uncheckpointed-WAL database, a header-valid corrupt file and a newer `user_version`.
 - [ ] Civil-time storage for deadlines, availability and exceptions; UTC epoch for instants. Verify: travel test (Manila → New York) keeps a 23:59 deadline at 23:59 local.
 - [ ] Repositories with a base query filtering `deletedAt`; soft delete + in-memory undo tokens. Verify: deleted rows disappear from every list and insight query; Undo restores them (comparison excludes updatedAt/deletedAt).

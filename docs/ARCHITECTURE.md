@@ -21,7 +21,8 @@ semester-os/
       database/               AppDatabase (Drift), tables, triggers, DbGuard, migrations
       errors/                 Failure hierarchy with SEM-* codes, ring buffer, diagnostics
       time/                   Clock provider, ZoneConverter (device), civil date/time types
-      config/                 AppLimits (app-level tunables)
+      config/                 AppLimits (app-level tunables and value ranges)
+      domain/                 pure-Dart shared value types (TaskStatus, SessionStatus, ThemePreference)
       widgets/                AppScaffold, AdaptiveNavigation, PageHeader, EmptyState, ErrorState,
                               WarningRow/WarningBadge, MiniSessionBar, PrimaryActionButton
     features/
@@ -36,7 +37,7 @@ semester-os/
                               capacity check, reason codes, SchedulerConfig
   test/                       unit + widget tests (fixtures/ shared seed data)
   integration_test/           core journey
-  drift_schemas/              committed schema snapshots (drift_schema_v1.json from Phase 2)
+  drift_schemas/              committed schema snapshots (app_database/drift_schema_v1.json)
   tool/                       bootstrap.sh, check.sh, gen.sh, test_integration.sh
   docs/                       this folder
 ```
@@ -70,7 +71,7 @@ semester-os/
 Dependency rules (enforced by a unit test that scans imports):
 - `presentation/` may import `application/`, `domain/`, `core/widgets`, `app/theme`. Never `data/`, never `package:drift`.
 - `application/` may import `domain/`, `data/`, `core/*`, `packages/semester_scheduler`.
-- `domain/` imports only Dart core and `packages/semester_scheduler` value types.
+- `domain/` imports only Dart core, `core/domain` and `packages/semester_scheduler` value types.
 - `packages/semester_scheduler` imports only Dart core, `package:clock`/`package:timezone` in tests. No Flutter.
 
 ## 4. Stack and versions
@@ -99,7 +100,7 @@ Conventions:
 - Riverpod 3 **without** code generation. ProviderScope sets `retry: null` for UI providers and at most one retry for database reads. Timer state derives from persisted timestamps, never from ticking listeners.
 - GoRouter with route-name constants in `app/router.dart`; no typed-route codegen.
 - `flutter_lints` (+ project rules in `analysis_options.yaml`).
-- Drift is the only code generator. Generated files are gitignored and rebuilt by `tool/bootstrap.sh`, `tool/gen.sh` and CI (`dart run build_runner build --delete-conflicting-outputs`).
+- Drift is the only code generator. Generated files are gitignored and rebuilt by `tool/bootstrap.sh`, `tool/gen.sh` and CI (`dart run build_runner build`).
 
 ## 5. Database design (schema v1)
 
@@ -123,7 +124,8 @@ Constraints and indexes:
 - Indexes: `study_sessions(plannedStart)`, `study_sessions(taskId, status)`, `tasks(deadlineDate)`, `tasks(subjectId)`, `tasks(status)`.
 - `CHECK` constraints for minute ranges, enum values and `endMinute > startMinute`.
 - Triggers `AFTER INSERT/UPDATE/DELETE` on `tasks`, `study_sessions`, `availability`, `availability_exceptions`, and `AFTER UPDATE OF <scheduling columns>` on `settings`, increment `data_version.value`. Theme, notification, nudge, export-time and calibration writes do not bump it.
-- The schema snapshot `drift_schemas/drift_schema_v1.json` is committed in Phase 2 and tested.
+- Tables are in `lib/core/database/tables.dart`; the partial index, other indexes and the DataVersion triggers are in `lib/core/database/schema.drift`. CHECK bounds are literal strings (so Drift records them in the snapshot) and `test/core/database/schema_test.dart` checks them against `AppLimits` and the enums.
+- The schema snapshot `drift_schemas/app_database/drift_schema_v1.json` is committed and `test/drift/app_database/schema_snapshot_test.dart` fails when the code's schema differs from it (columns, CHECKs, indexes, triggers).
 
 ## 6. Time model
 
