@@ -1,6 +1,6 @@
 # SemesterOS Design System
 
-Status: Phase 0 specification (2026-10-12). Tokens are implemented in `lib/app/theme/` in Phase 1; a contrast test recomputes every ratio below and fails if any drops under its target.
+Status: tokens implemented in `lib/app/theme/tokens.dart` (Phase 1, 2026-10-12); `test/theme/contrast_test.dart` recomputes every ratio below and fails if any drops under its target. IBM Plex Sans is not bundled yet (see §3).
 
 ## 1. Brand
 
@@ -34,7 +34,7 @@ Text targets: 4.5:1 for body text, 3:1 for large text and UI boundaries. Ratios 
 | capacity | #B42318 | 6.57 / 6.13 / 5.75 |
 | success | #1E7A3C | 5.38 / 5.01 / 4.71 |
 
-Containers for banners (text on them uses the matching strong color or textPrimary): infoContainer #E6EEF6, attentionContainer #FFF1D6, capacityContainer #FDE7E5, successContainer #DFF3E5. Their ratios are added to the contrast test in Phase 1.
+Containers for banners (text on them uses the matching strong color or textPrimary): infoContainer #E6EEF6, attentionContainer #FFF1D6, capacityContainer #FDE7E5, successContainer #DFF3E5. Their ratios are covered by `test/theme/contrast_test.dart`.
 
 ### Dark
 
@@ -53,6 +53,8 @@ Containers for banners (text on them uses the matching strong color or textPrima
 | attention | #F2C063 | 10.06 / 11.08 / 8.94 |
 | capacity | #FF8A80 | 7.41 / 8.16 / 6.58 |
 | success | #7BD39A | 9.36 / 10.31 / 8.32 |
+
+Dark containers: accentContainer #12403B, infoContainer #1D2B3A, attentionContainer #3A2C10, capacityContainer #3D1D1B, successContainer #173222 (each passes 4.5:1 with its strong color and with textPrimary; see test/theme/contrast_test.dart).
 
 ### Subject palette (10 colors, stored as `colorIndex`)
 
@@ -73,7 +75,7 @@ Used as a swatch next to the subject name (never as the only identifier).
 
 ## 3. Typography
 
-- Typeface: **IBM Plex Sans** (SIL OFL), bundled in `assets/fonts/` (Regular 400, Medium 500, SemiBold 600). No runtime font fetching (google_fonts runtime loading breaks offline-first).
+- Typeface: **IBM Plex Sans** (SIL OFL), to be bundled in `assets/fonts/` (Regular 400, Medium 500, SemiBold 600) and set via `kAppFontFamily` in `lib/app/theme/app_theme.dart`. Until the files are added the platform default font is used. No runtime font fetching (google_fonts runtime loading breaks offline-first).
 - Tabular figures (`FontFeature.tabularFigures()`) for times, durations, timers and numbers in tables.
 - Scale (logical px / line height): display 32/40 SemiBold · title 24/32 SemiBold · heading 20/28 SemiBold · body 16/24 Regular · bodySmall 14/20 Regular · label 14/20 Medium · caption 12/16 Regular.
 - Body text is never below 16. Captions are for metadata only, never for actions or warnings.

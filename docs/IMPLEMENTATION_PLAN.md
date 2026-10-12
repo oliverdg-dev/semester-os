@@ -11,7 +11,7 @@ Companion docs: [ARCHITECTURE](ARCHITECTURE.md) · [SCHEDULING_ALGORITHM](SCHEDU
 | Phase | State |
 |---|---|
 | 0. Audit and planning | **Done** (2026-10-12): repo audited, plan reviewed (CEO, design, DX, eng), all planning docs written |
-| 1. Foundation | Next |
+| 1. Foundation | In progress |
 | 2-9 | Not started |
 
 ## 0. Repository audit (2026-10-12)
@@ -78,26 +78,29 @@ These came out of the review and change the brief's phase order. Until the owner
 - [x] Deferred ideas recorded in TODOS.md.
 - [x] `.gitignore` excludes `CLAUDE.md`; `CLAUDE.md` holds the no-co-author rule.
 
-### Phase 1 — Foundation
+### Phase 1 — Foundation (in progress, 2026-10-12)
 
-- [ ] `flutter create --org <org> --platforms android,ios` into the repo root without overwriting docs; app id chosen and recorded.
-- [ ] Toolchain pin: `.fvmrc` = 3.47.7; pubspec `environment` Dart/Flutter constraints; README explains fvm or PATH. Verify: `tool/check.sh` fails with a clear message when the active Flutter differs from the pin.
-- [ ] Dependencies added with `flutter pub add` (drift, drift_dev, build_runner, sqlite3 libs, flutter_riverpod ^3, go_router, clock, timezone, uuid, intl, fl_chart); license and maintenance re-checked and the ARCHITECTURE §4 table updated with resolved versions; `flutter pub outdated` output recorded.
-- [ ] `packages/semester_scheduler` created as a pure Dart package (no Flutter dependency), path dependency from the app. Verify: package pubspec has no flutter dependency; `dart test` runs in it.
-- [ ] Scripts `tool/bootstrap.sh`, `tool/check.sh`, `tool/gen.sh`, `tool/test_integration.sh` as specified in ARCHITECTURE §14. Verify: clean clone → `tool/bootstrap.sh` → `flutter analyze` reports no missing generated symbols.
-- [ ] Codegen policy: generated files gitignored; bootstrap and CI run build_runner. Recorded in ARCHITECTURE.
-- [ ] Theme tokens from DESIGN_SYSTEM in `lib/app/theme/` (light/dark, type scale with bundled IBM Plex Sans and tabular figures, spacing, radii, motion with reduced-motion). Verify: contrast unit test recomputes every token pair and subject color; light/dark goldens.
-- [ ] App shell: GoRouter with route-name constants; AdaptiveNavigation (4 destinations) by width class; Settings in the header; quick-add FAB/rail button; MiniSessionBar slot. Verify: widget tests at 360/700/1024 dp assert navigation type and destinations.
-- [ ] ProviderScope retry policy (none for UI providers, one retry for DB reads). Verify: a failing provider shows ErrorState without retries and records one diagnostics entry.
-- [ ] Global error handling: `FlutterError.onError` + `PlatformDispatcher.instance.onError` → ErrorState (Retry / Go to Today) and ring buffer (code, type, frames only). Verify: widget test that a provider exception renders ErrorState and records the code.
-- [ ] Layer rule test: no file under `presentation/` imports `data/` or `package:drift`. Verify: test passes and fails on a planted violation.
-- [ ] `analysis_options.yaml` with `flutter_lints`; `dart format` clean.
-- [ ] Drift `AppDatabase` skeleton opened through DbGuard (full schema lands in Phase 2).
-- [ ] Smoke tests: app boots to Today empty state.
-- [ ] CI (GitHub Actions): `tool/check.sh` + `flutter build apk --debug`; goldens and emulator journey only while the repo is public. Verify: workflow file exists; README states CI status honestly (verified only after a real run).
-- [ ] README stub: what/why, three differentiators, setup (pinned Flutter, bootstrap), run, test, Known limitations (Android licenses command; CocoaPods only if the iOS build below needs it), no-cloud-sync statement, CI status. Measured `tool/bootstrap.sh` + `flutter run` time on this Mac with date.
-- [ ] iOS check: `flutter build ios --simulator --no-codesign` with the chosen plugins; record whether CocoaPods is still required and update README/§0.
-- [ ] CHANGELOG.md started.
+- [x] `flutter create --org dev.oliverdg --project-name semester_os --platforms android,ios` in the repo root; docs and `.gitignore` untouched. App id `dev.oliverdg.semester_os`.
+- [x] Toolchain pin: `.fvmrc` = 3.47.7 and `environment.flutter: 3.47.7` in pubspec; README explains fvm or PATH. Verified: with `.fvmrc` set to 3.99.0, `tool/check.sh` exits 1 with "Flutter 3.47.7 is active but this repo pins 3.99.0" and the fix command.
+- [x] Dependencies added with `flutter pub add` after checking each on pub.dev (license, points, publisher); ARCHITECTURE §4 updated with resolved versions. `sqlite3_flutter_libs` is end-of-life, so `sqlite3` 3.x (bundled SQLite) is used directly; `drift_flutter` not needed. `flutter pub outdated`: all direct and dev dependencies up to date.
+- [x] `packages/semester_scheduler` pure Dart package with `SchedulerConfig`/`ScoringWeights`/`TaskType`/`TaskPriority`. Verified: `dart test` 8/8 (purity test: no Flutter/Drift imports, no Flutter dependency; config defaults parsed from SCHEDULING_ALGORITHM §7).
+- [x] Scripts `tool/bootstrap.sh`, `tool/check.sh`, `tool/gen.sh`, `tool/test_integration.sh`.
+- [ ] Clean-clone verification: fresh clone → `tool/bootstrap.sh` → `flutter analyze` with no missing generated symbols; measured time recorded in README.
+- [x] Codegen policy: `*.g.dart` gitignored; bootstrap, gen and CI run build_runner.
+- [x] Theme tokens in `lib/app/theme/` (light/dark palettes, semantic colors extension, subject palette, type scale, spacing, radii, motion with reduced-motion helper, width classes). Verified: `test/theme/contrast_test.dart` (every text/background pair ≥ 4.5:1, outlines and subject colors ≥ 3:1, both themes).
+- [ ] Bundle IBM Plex Sans (OFL) in `assets/fonts/` and set `kAppFontFamily`; until then the platform font is used. Light/dark goldens wait for the bundled font.
+- [x] App shell: GoRouter (`StatefulShellRoute`, route-name constants), AdaptiveShell (NavigationBar < 600, rail 600-839, extended rail ≥ 840), Settings in the header, quick-add and mini session bar slots that stay hidden until their features exist. Verified: widget tests at 360/700/1024 dp; no overflow at text scale 2.0 at all three widths.
+- [x] ProviderScope retry policy `noRetry` (DB reads opt in to `databaseReadRetry`, used from Phase 2). Verified: failing provider evaluated once, ErrorState shown, one log entry.
+- [x] Global error handling: `FlutterError.onError` + `PlatformDispatcher.instance.onError` + `ErrorLogObserver` → ring buffer (code, type, stack frames only, 200 entries); `AsyncValueView` renders ErrorState with code. Verified: tests incl. a message containing a task title that never reaches diagnostics.
+- [x] Layer rule test. Verified: passes on `lib/` and catches a planted violation.
+- [x] `analysis_options.yaml` (flutter_lints + strict casts/raw types + extra rules); `dart format` clean.
+- [x] Drift `AppDatabase` skeleton (schema v1, no tables yet) opened through DbGuard (`quick_check`, `user_version`); minimal recovery screen with the error code. Verified: DbGuard tests (missing, healthy, not-a-database, newer version, corruption codes, Drift opens a real file).
+- [x] Error catalogue test: every Failure class has a docs/ERRORS.md row.
+- [x] Smoke tests: boots to Today empty state; each destination shows its documented empty state; Settings > About & diagnostics works.
+- [ ] CI (GitHub Actions): workflow written (`tool/check.sh` + debug APK); verified only after its first run on GitHub.
+- [x] Android debug build (`flutter build apk --debug`) result recorded. 2026-10-12: exit 0, `build/app/outputs/flutter-apk/app-debug.apk` (first run 193 s; Gradle auto-installed SDK Platform 36 and CMake 3.22.1).
+- [ ] iOS simulator build (`flutter build ios --simulator --no-codesign`) result recorded; CocoaPods requirement noted. 2026-10-12: **failed (exit 1)** on this machine: Xcode 26.6 reports "iOS 26.5 is not installed" (only the iOS 17.5 simulator runtime is present). Not a project error. Fix: Xcode > Settings > Components, or `xcodebuild -downloadPlatform iOS`, then re-run. CocoaPods: not needed (the project resolves plugins through Swift Package Manager).
+- [x] README stub and CHANGELOG.md.
 
 ### Phase 2 — Database and core data
 

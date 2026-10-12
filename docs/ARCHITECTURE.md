@@ -77,21 +77,23 @@ Dependency rules (enforced by a unit test that scans imports):
 
 Pinned toolchain: **Flutter 3.47.7, Dart 3.13.5** (observed after the 2026-10-12 upgrade). `.fvmrc` pins it; CI reads the same file.
 
-| Package | Use | Constraint (resolve with `flutter pub add` in Phase 1) | License | Account/service needed |
+| Package | Use | Resolved (Phase 1, 2026-10-12) | License | Account/service needed |
 |---|---|---|---|---|
-| drift, drift_dev, build_runner | SQLite ORM, codegen | ^2.34 | MIT | none |
-| sqlite3 / sqlite3_flutter_libs | native SQLite | per drift docs at Phase 1 | MIT | none |
-| flutter_riverpod | state | ^3 (3.4.x observed; 4.0 may come, stay on ^3) | MIT | none |
-| go_router | navigation | current stable (17/18 observed) | BSD-3 | none |
-| clock | injectable time | current | BSD-3 | none |
-| timezone | IANA rules for tests/notifications | current | BSD-2 | none |
-| uuid | ids | current | MIT | none |
-| intl | dates, numbers | current | BSD-3 | none |
-| fl_chart | insights charts | current | MIT | none |
-| flutter_local_notifications | reminders (Phase 7) | current | BSD-3 | none |
-| file picker / save dialog | backup export/import (Phase 7) | chosen in Phase 7 spike | to verify | none |
+| drift / drift_dev / build_runner | SQLite ORM, codegen | 2.35.2 / 2.35.1 / 2.16.2 | MIT / MIT / BSD-3 | none |
+| sqlite3 | native SQLite (bundled by the package's build hook; `sqlite3_flutter_libs` is end-of-life and not used) | 3.7.0 | MIT | none |
+| flutter_riverpod | state | 3.4.3 (stay on ^3; 4.0 may come) | MIT | none |
+| go_router | navigation | 18.0.2 | BSD-3 | none |
+| path_provider / path | database location | 2.1.6 / 1.9.1 | BSD-3 | none |
+| clock | injectable time | 1.1.3 | Apache-2.0 | none |
+| timezone (scheduler dev dependency) | IANA rules for tests | 0.11.2 | BSD | none |
+| uuid | ids | 4.6.0 | MIT | none |
+| intl | dates, numbers | 0.20.3 | BSD-3 | none |
+| fl_chart | insights charts | 1.2.0 | MIT | none |
+| flutter_lints | lints | 6.0.0 | BSD-3 | none |
+| flutter_local_notifications | reminders | added in Phase 7 | BSD-3 (re-check then) | none |
+| file save/pick | backup export/import | chosen in Phase 7 spike | to verify | none |
 
-Licenses and maintenance are re-verified on pub.dev when each package is added; the table is updated with the exact resolved version. `flutter pub outdated` output is recorded in the Phase 1 summary.
+Licenses, pub points and publishers were checked on pub.dev (API `/api/packages/<name>` and `/score`) before adding each package; `timezone` reports no score, so its LICENSE file was read directly (BSD, Dart team). Each later package gets the same check.
 
 Conventions:
 - Riverpod 3 **without** code generation. ProviderScope sets `retry: null` for UI providers and at most one retry for database reads. Timer state derives from persisted timestamps, never from ticking listeners.
