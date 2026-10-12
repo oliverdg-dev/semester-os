@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/app_theme.dart';
 import '../../app/theme/tokens.dart';
 import '../errors/failure.dart';
 
@@ -36,7 +35,7 @@ class ErrorState extends StatelessWidget {
               Icon(
                 Icons.error_outline,
                 size: 32,
-                color: context.semantic.capacity,
+                color: theme.colorScheme.onSurfaceVariant,
               ),
               const SizedBox(height: Space.lg),
               Text(failure.userMessage, style: theme.textTheme.titleLarge),

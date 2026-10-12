@@ -1,14 +1,34 @@
 import 'dart:io';
 
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:semester_scheduler/semester_scheduler.dart';
+
+import '../domain/statuses.dart';
+import 'tables.dart';
+
+export 'tables.dart';
 
 part 'app_database.g.dart';
 
-/// The single SQLite database. Tables arrive in Phase 2 (schema v1 in
-/// docs/ARCHITECTURE.md §5); only repositories may use this class.
-@DriftDatabase(tables: [])
+/// The single SQLite database, schema v1 (docs/ARCHITECTURE.md §5). Only
+/// repositories may use this class.
+@DriftDatabase(
+  tables: [
+    Subjects,
+    Tasks,
+    Milestones,
+    Availability,
+    AvailabilityExceptions,
+    StudySessions,
+    Settings,
+    EstimateCalibration,
+    DataVersion,
+  ],
+  include: {'schema.drift'},
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
@@ -31,6 +51,16 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
+    onCreate: (m) async {
+      await m.createAll();
+      // Singleton rows: exactly one settings row and one data_version row.
+      await into(settings).insert(
+        SettingsCompanion.insert(
+          updatedAt: clock.now().toUtc().millisecondsSinceEpoch,
+        ),
+      );
+      await into(dataVersion).insert(const DataVersionCompanion());
+    },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
     },

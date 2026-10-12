@@ -10,7 +10,7 @@ echo "Flutter $(pinned_version) OK"
 (cd packages/semester_scheduler && "${DART[@]}" pub get >/dev/null)
 echo "Packages OK"
 
-"${DART[@]}" run build_runner build --delete-conflicting-outputs >/dev/null
+"${DART[@]}" run build_runner build >/dev/null
 echo "Generated code OK"
 
 doctor="$("${FLUTTER[@]}" doctor 2>&1 || true)"

@@ -1,6 +1,6 @@
 # SemesterOS Design System
 
-Status: tokens implemented in `lib/app/theme/tokens.dart` (Phase 1, 2026-10-12); `test/theme/contrast_test.dart` recomputes every ratio below and fails if any drops under its target. IBM Plex Sans 1.1.0 is bundled (see §3).
+Status: tokens implemented in `lib/app/theme/tokens.dart` (Phase 1, 2026-10-12; revised by the Phase 2 design pass on 2026-10-12 after the impeccable critique in `.impeccable/critique/`, decisions BD5/BD6); `test/theme/contrast_test.dart` recomputes every ratio below and fails if any drops under its target. IBM Plex Sans 1.1.0 is bundled (see §3).
 
 ## 1. Brand
 
@@ -31,10 +31,11 @@ Text targets: 4.5:1 for body text, 3:1 for large text and UI boundaries. Ratios 
 | accentContainer | #D5F0EC | |
 | info | #3B5B7A | 7.09 / 6.61 / 6.20 |
 | attention | #8A5A00 | 5.93 / 5.53 / 5.19 |
-| capacity | #B42318 | 6.57 / 6.13 / 5.75 |
+| capacity | #52398F | 8.97 / 8.36 / 7.85 |
 | success | #1E7A3C | 5.38 / 5.01 / 4.71 |
+| danger | #B42318 | 6.57 / 6.13 / 5.75 |
 
-Containers for banners (text on them uses the matching strong color or textPrimary): infoContainer #E6EEF6, attentionContainer #FFF1D6, capacityContainer #FDE7E5, successContainer #DFF3E5. Their ratios are covered by `test/theme/contrast_test.dart`.
+Containers for banners (text on them uses the matching strong color or textPrimary): infoContainer #E6EEF6, attentionContainer #FFF1D6, capacityContainer #ECE8F6, successContainer #DFF3E5, dangerContainer #FDE7E5. Their ratios are covered by `test/theme/contrast_test.dart`.
 
 ### Dark
 
@@ -51,10 +52,16 @@ Containers for banners (text on them uses the matching strong color or textPrima
 | onAccent | #04201D | 8.17 on accent |
 | info | #9DB8D6 | 8.26 / 9.10 / 7.34 |
 | attention | #F2C063 | 10.06 / 11.08 / 8.94 |
-| capacity | #FF8A80 | 7.41 / 8.16 / 6.58 |
+| capacity | #B09FDB | 7.11 / 7.83 / 6.31 |
 | success | #7BD39A | 9.36 / 10.31 / 8.32 |
+| danger | #FF8A80 | 7.41 / 8.16 / 6.58 |
 
-Dark containers: accentContainer #12403B, infoContainer #1D2B3A, attentionContainer #3A2C10, capacityContainer #3D1D1B, successContainer #173222 (each passes 4.5:1 with its strong color and with textPrimary; see test/theme/contrast_test.dart).
+Dark containers: accentContainer #12403B, infoContainer #1D2B3A, attentionContainer #3A2C10, capacityContainer #29234A, successContainer #173222, dangerContainer #3D1D1B (each passes 4.5:1 with its strong color and with textPrimary; see test/theme/contrast_test.dart).
+
+### Color rules
+
+- **capacity** (more work than time) is an indigo ink, never red: the app is honest about capacity without sounding an alarm (owner, 2026-10-12). **danger** is only for real failures and destructive confirmations; Material's `error` role maps to it.
+- Every Material color role is mapped explicitly from the palette in `schemeFor()` (`lib/app/theme/app_theme.dart`), not derived from a seed, and `test/theme/contrast_test.dart` checks each on-color pair at 4.5:1. Sheets, dialogs and menus share the surface color; snackbars use the opposite theme's surface, text and accent.
 
 ### Subject palette (10 colors, stored as `colorIndex`)
 
@@ -62,22 +69,26 @@ Used as a swatch next to the subject name (never as the only identifier).
 
 | Index | Light | vs #FFFFFF | Dark | vs #1A1D21 |
 |---|---|---|---|---|
-| 0 Blue | #2563A8 | 6.12 | #7AA7E0 | 6.79 |
-| 1 Teal | #0F766E | 5.47 | #5EC4B6 | 8.09 |
-| 2 Violet | #7A4FB5 | 5.81 | #B595E6 | 6.77 |
-| 3 Raspberry | #B4235A | 6.31 | #F07AA6 | 6.47 |
-| 4 Orange | #C2410C | 5.18 | #F5935C | 7.42 |
-| 5 Olive | #4D7C0F | 4.99 | #9BCB5A | 8.93 |
-| 6 Ochre | #A16207 | 4.92 | #E2B04A | 8.49 |
-| 7 Cyan | #0E7490 | 5.36 | #5CC3DB | 8.28 |
-| 8 Slate | #6B7280 | 4.83 | #A3AAB5 | 7.23 |
-| 9 Wine | #9F1239 | 8.02 | #F2788F | 6.33 |
+| 0 Blue | #255893 | 7.25 | #7CAADE | 6.98 |
+| 1 Plum | #8F3D8F | 6.50 | #C270C2 | 5.15 |
+| 2 Green | #339955 | 3.60 | #94DBAC | 10.46 |
+| 3 Rose | #8E294B | 8.17 | #DA819E | 6.13 |
+| 4 Orange | #A54312 | 6.16 | #EF986C | 7.55 |
+| 5 Olive | #719C1C | 3.24 | #C0E774 | 12.02 |
+| 6 Ochre | #AA7B0E | 3.78 | #F3C968 | 10.76 |
+| 7 Sky | #1281A5 | 4.46 | #6CCEEF | 9.43 |
+| 8 Slate | #535A65 | 6.96 | #9AA2AC | 6.55 |
+| 9 Brown | #815637 | 6.33 | #CEA88D | 7.74 |
+
+Swatches stay visibly apart from the accent and capacity colors (RGB distance above 50) and from each other (above 40) so a subject never reads as a link, a selection or a warning; the contrast test enforces both.
 
 ## 3. Typography
 
-- Typeface: **IBM Plex Sans** (SIL OFL), bundled in `assets/fonts/` (Regular 400, Medium 500, SemiBold 600, version 1.1.0, licence in `assets/fonts/OFL.txt`) and set via `kAppFontFamily` in `lib/app/theme/app_theme.dart`; `test/theme/font_test.dart` checks the files, the pubspec weights and that every text style uses it. No runtime font fetching (google_fonts runtime loading breaks offline-first).
+- Typeface: **IBM Plex Sans** (SIL OFL) for content on both platforms (headlines, the next action, body, numbers). On iOS, controls use the system face (SF, `kIosSystemFontFamily`): navigation titles (17 pt semibold), large titles, tab bar labels and settings rows (owner, 2026-10-12). Android uses Plex throughout.
+- Plex is bundled in `assets/fonts/` (Regular 400, Medium 500, SemiBold 600, version 1.1.0, licence in `assets/fonts/OFL.txt`) and set via `kAppFontFamily` in `lib/app/theme/app_theme.dart`; `test/theme/font_test.dart` checks the files, the pubspec weights and that every text style uses it. No runtime font fetching (google_fonts runtime loading breaks offline-first).
 - Tabular figures (`FontFeature.tabularFigures()`) for times, durations, timers and numbers in tables.
-- Scale (logical px / line height): display 32/40 SemiBold · title 24/32 SemiBold · heading 20/28 SemiBold · body 16/24 Regular · bodySmall 14/20 Regular · label 14/20 Medium · caption 12/16 Regular.
+- Scale (logical px / line height): displaySmall 32/40 SemiBold · headlineSmall 24/32 SemiBold (the Today next action, one step above every other content heading) · titleLarge 20/28 SemiBold (Android page titles) · titleMedium 16/24 SemiBold (empty-state and section headlines) · body 16/24 Regular · bodySmall 14/20 Regular · label 14/20 Medium · caption 12/16 Regular. iOS page titles are the system large title (34 pt bold) collapsing to the inline title.
+- Extra roles in the `AppTextStyles` theme extension (`context.appText`), all with tabular figures: `numeric` (body size, times and durations in text), `numericLarge` (headline size), `timer` (56/64 Medium, the session timer), `dateLine` (14/20 Medium secondary, "Monday 12 October" under a page title).
 - Body text is never below 16. Captions are for metadata only, never for actions or warnings.
 - Headings sit closer to the content they introduce than to the content above (more space above than below).
 
@@ -89,7 +100,7 @@ Used as a swatch next to the subject name (never as the only identifier).
 
 ## 5. Icons
 
-Flutter's bundled Material Icons (rounded where available). Icons always accompany text for status; standalone icon buttons carry a tooltip and semantics label. No emoji.
+Android: Material Icons. iOS: Cupertino icons (`cupertino_icons`, the SF Symbols look) for navigation and controls. Destinations: Today = sun, Plan = calendar (Android) / week columns (iOS), Tasks = checklist, Insights = bar chart. Icons always accompany text for status; standalone icon buttons carry a tooltip (Android) or a semantics label (iOS). No emoji.
 
 ## 6. Motion
 
@@ -101,10 +112,11 @@ Flutter's bundled Material Icons (rounded where available). Icons always accompa
 
 | Component | Purpose | Notes |
 |---|---|---|
-| AppScaffold | page frame with header, body, optional FAB | handles mini session bar slot |
-| AdaptiveNavigation | NavigationBar / NavigationRail / extended rail by width | four destinations |
-| PageHeader | title, optional date line, header actions (Settings, Notices) | |
-| NextActionBlock | Today's single visual anchor | one primary button only |
+| AdaptiveShell | top-level navigation | iOS: system tab bar at every size. Android: NavigationBar (compact), NavigationRail with labels (medium), permanent NavigationDrawer (expanded, widens with text size). Mini session bar slot. `lib/core/widgets/adaptive_shell.dart` |
+| PageScaffold | frame of a top-level page | iOS: large title collapsing on scroll, Settings at the trailing edge. Android: pinned top app bar with a Settings action. Optional date line. Always scrolls; body capped at 720 and aligned to the start edge. |
+| DetailScaffold | frame of a pushed screen (Settings, details) | iOS: system navigation bar with centered title and back chevron. Android: Material top app bar. |
+| SettingsSection | settings-shaped lists | iOS: inset grouped list. Android: list tiles on the page gutter. |
+| NextActionBlock | Today's single visual anchor | top of Today on the gutter; headlineSmall headline, one supporting line, one filled button at most. `lib/features/dashboard/presentation/widgets/next_action_block.dart` |
 | SessionListTile | session in a list: time range, task, subject swatch, status label | semantics label includes all of it |
 | SessionBlock | session in the planner grid | pinned icon + label, never color only |
 | DeadlineItem | task, subject, "Due Fri, end of day", status | |
@@ -115,8 +127,8 @@ Flutter's bundled Material Icons (rounded where available). Icons always accompa
 | ProposalSummary | "24 sessions over 3 weeks · 2 tasks don't fit · 1 deadline at risk" | |
 | MiniSessionBar | active/paused session above the navigation | task, elapsed, Pause/Complete |
 | SessionTimer | full-screen timer | tabular figures, large type |
-| EmptyState | headline, one sentence, one primary action | copy in UX_FLOWS.md |
-| ErrorState | what happened, Retry / Go to Today, error code | |
+| EmptyState | headline, one sentence, one primary action | top-start on the gutter where content will appear (no centered block, no icon); headline marked as a heading. Copy in UX_FLOWS.md |
+| ErrorState | what happened, Retry / Go to Today, error code | neutral icon, not red: calm even when something failed |
 | PrimaryActionButton | the one primary action of a screen | |
 
 Cards are used only for the Today secondary slot and the proposal summary.
@@ -144,7 +156,7 @@ Info = neutral information; attention = something the student should look at; ca
 - Visible labels above fields (never placeholder-only). Errors appear under the field in capacity color with an icon, and entered data is kept.
 - Primary button: filled accent. Secondary: outlined. Destructive actions: text button in capacity color inside a confirmation.
 - Touch targets ≥ 48 × 48 dp.
-- Pickers: Material 3 date/time pickers with adaptive constructors on iOS where available; segmented buttons for task type and priority.
+- Pickers and controls follow the platform (BD6): iOS uses Cupertino date/time pickers, `CupertinoSegmentedControl`/sliding segmented control for task type and priority, switches and action sheets; Android uses Material 3 pickers, segmented buttons, switches and bottom sheets. Primary actions on iOS that live in a navigation bar (Add, Done) use the bar, not a FAB.
 
 ## 10. Charts
 
@@ -164,3 +176,20 @@ Every screen defines: loading (none under ~150 ms for local reads; inline progre
 - Logical focus order; visible focus ring on tablets with keyboards or switch access.
 - Status never color-only. Timer announces state changes, not every second.
 - Flutter `meetsGuideline` tests (tap target, labeled tap target, text contrast) on Today, Plan, Tasks and the proposal screen.
+
+## 13. Platform mapping (BD6)
+
+One shared token set feeds both platforms; structure and controls follow each platform's conventions.
+
+| Need | iOS | Android |
+|---|---|---|
+| Top-level navigation | Tab bar (all sizes) | NavigationBar → rail → permanent drawer |
+| Page title | Large title, collapses on scroll | Pinned small top app bar |
+| Pushed screen | Navigation bar, back chevron, edge-swipe back | Top app bar, system Back / predictive back |
+| Settings lists | Inset grouped list, chevrons | List tiles |
+| Quick add (Phase 2) | "+" in the navigation bar | FAB (compact) or drawer/rail button |
+| Pickers, segments, switches | Cupertino controls | Material 3 controls |
+| Control font | SF (system) | IBM Plex Sans |
+| Content font | IBM Plex Sans | IBM Plex Sans |
+| Page gutter | 16 at every size (matches the bar inset) | 16 compact, 24 medium and expanded |
+

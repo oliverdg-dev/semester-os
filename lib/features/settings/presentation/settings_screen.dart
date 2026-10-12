@@ -1,10 +1,14 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../app/app_info.dart';
-import '../../../app/theme/tokens.dart';
+import '../../../app/router.dart';
 import '../../../core/errors/error_log.dart';
+import '../../../core/widgets/page_scaffold.dart';
+import '../../../core/widgets/settings_list.dart';
 
 /// Settings. Phase 1 ships About & diagnostics; planning defaults, study times,
 /// theme, reminders and backup arrive with their phases.
@@ -13,19 +17,20 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+    return DetailScaffold(
+      title: 'Settings',
       body: ListView(
         children: [
-          ListTile(
-            leading: const Icon(Icons.info_outline),
-            title: const Text('About & diagnostics'),
-            subtitle: const Text('Version, data format and recent error codes'),
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => const AboutDiagnosticsScreen(),
+          SettingsSection(
+            tiles: [
+              SettingsTile(
+                title: 'About & diagnostics',
+                subtitle: 'Version, data format and recent error codes',
+                icon: Icons.info_outline,
+                iosIcon: CupertinoIcons.info_circle,
+                onTap: () => context.pushNamed(Routes.aboutHere(context)),
               ),
-            ),
+            ],
           ),
         ],
       ),
@@ -52,46 +57,47 @@ class AboutDiagnosticsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final log = ref.watch(errorLogProvider);
-    final theme = Theme.of(context);
     final last = log.last;
-    return Scaffold(
-      appBar: AppBar(title: const Text('About & diagnostics')),
+    return DetailScaffold(
+      title: 'About & diagnostics',
       body: ListView(
-        padding: const EdgeInsets.all(Space.lg),
         children: [
-          Text(
-            'SemesterOS ${AppInfo.version}',
-            style: theme.textTheme.titleMedium,
+          SettingsSection(
+            header: 'This app',
+            tiles: [
+              const SettingsTile(title: 'Version', value: AppInfo.version),
+              SettingsTile(
+                title: 'Data format',
+                value: '${AppInfo.schemaVersion}',
+              ),
+              const SettingsTile(
+                title: 'Your data',
+                subtitle: 'Everything stays on this device.',
+              ),
+            ],
           ),
-          const SizedBox(height: Space.xs),
-          Text(
-            'Data format ${AppInfo.schemaVersion} · Everything stays on this device.',
-            style: theme.textTheme.bodySmall,
-          ),
-          const SizedBox(height: Space.xl),
-          Text('Last error', style: theme.textTheme.titleMedium),
-          const SizedBox(height: Space.xs),
-          Text(
-            last == null ? 'None' : '${last.code} (${last.type})',
-            style: theme.textTheme.bodyLarge,
-          ),
-          const SizedBox(height: Space.xl),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: OutlinedButton.icon(
-              icon: const Icon(Icons.copy),
-              label: const Text('Copy diagnostics'),
-              onPressed: () async {
-                await Clipboard.setData(
-                  ClipboardData(text: diagnosticsText(log)),
-                );
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Diagnostics copied')),
+          SettingsSection(
+            header: 'Diagnostics',
+            tiles: [
+              SettingsTile(
+                title: 'Last error',
+                value: last == null ? 'None' : '${last.code} (${last.type})',
+              ),
+              SettingsTile(
+                title: 'Copy diagnostics',
+                isAction: true,
+                onTap: () async {
+                  await Clipboard.setData(
+                    ClipboardData(text: diagnosticsText(log)),
                   );
-                }
-              },
-            ),
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Diagnostics copied')),
+                    );
+                  }
+                },
+              ),
+            ],
           ),
         ],
       ),

@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Phase 2: Database and core data (in progress)
+- Schema v1: all nine tables, CHECK constraints tied to `AppLimits`, the one-live-session index and DataVersion triggers, with a committed Drift schema snapshot and a test that fails on any unrecorded change.
+- Adaptive design pass (impeccable critique, BD5/BD6): iOS tab bar, large titles, system font for iOS controls and inset grouped Settings; Android bar, rail or permanent drawer by window size; landscape phones stay compact; Settings opens inside each tab.
+- Today leads with the next-action block and the date; empty states sit at the top of the page.
+- Color: every Material role mapped and contrast-tested; capacity warnings use an indigo ink, red only for real errors; subject colors kept apart from the accent and warnings.
+- Type: tabular numeric, timer and date-line styles.
+- Developer workflow: `/harness` (dev, independent QA, ops) and `LEARNING.md`.
+
 ### Phase 1: Foundation
 - Flutter app scaffold for Android and iOS (`dev.oliverdg.semester_os`), Flutter pinned to 3.47.7.
 - Pure Dart `packages/semester_scheduler` with `SchedulerConfig` defaults checked against the scheduling doc.

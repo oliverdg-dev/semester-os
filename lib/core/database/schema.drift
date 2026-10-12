@@ -1,0 +1,75 @@
+-- Schema v1 index and DataVersion triggers (ARCHITECTURE §5).
+-- Tables are declared in tables.dart.
+import 'tables.dart';
+
+-- At most one live (active or paused) session.
+CREATE UNIQUE INDEX one_live_session ON study_sessions((1))
+  WHERE status IN ('active', 'paused') AND deleted_at IS NULL;
+
+CREATE INDEX study_sessions_planned_start ON study_sessions(planned_start);
+CREATE INDEX study_sessions_task_status ON study_sessions(task_id, status);
+CREATE INDEX tasks_deadline_date ON tasks(deadline_date);
+CREATE INDEX tasks_subject_id ON tasks(subject_id);
+CREATE INDEX tasks_status ON tasks(status);
+
+-- Any change to a scheduler input bumps data_version. Theme, notification,
+-- nudge, export-time and calibration writes do not.
+
+CREATE TRIGGER tasks_insert_bumps_data_version AFTER INSERT ON tasks BEGIN
+  UPDATE data_version SET value = value + 1 WHERE id = 1;
+END;
+
+CREATE TRIGGER tasks_update_bumps_data_version AFTER UPDATE ON tasks BEGIN
+  UPDATE data_version SET value = value + 1 WHERE id = 1;
+END;
+
+CREATE TRIGGER tasks_delete_bumps_data_version AFTER DELETE ON tasks BEGIN
+  UPDATE data_version SET value = value + 1 WHERE id = 1;
+END;
+
+CREATE TRIGGER study_sessions_insert_bumps_data_version AFTER INSERT ON study_sessions BEGIN
+  UPDATE data_version SET value = value + 1 WHERE id = 1;
+END;
+
+CREATE TRIGGER study_sessions_update_bumps_data_version AFTER UPDATE ON study_sessions BEGIN
+  UPDATE data_version SET value = value + 1 WHERE id = 1;
+END;
+
+CREATE TRIGGER study_sessions_delete_bumps_data_version AFTER DELETE ON study_sessions BEGIN
+  UPDATE data_version SET value = value + 1 WHERE id = 1;
+END;
+
+CREATE TRIGGER availability_insert_bumps_data_version AFTER INSERT ON availability BEGIN
+  UPDATE data_version SET value = value + 1 WHERE id = 1;
+END;
+
+CREATE TRIGGER availability_update_bumps_data_version AFTER UPDATE ON availability BEGIN
+  UPDATE data_version SET value = value + 1 WHERE id = 1;
+END;
+
+CREATE TRIGGER availability_delete_bumps_data_version AFTER DELETE ON availability BEGIN
+  UPDATE data_version SET value = value + 1 WHERE id = 1;
+END;
+
+CREATE TRIGGER availability_exceptions_insert_bumps_data_version AFTER INSERT ON availability_exceptions BEGIN
+  UPDATE data_version SET value = value + 1 WHERE id = 1;
+END;
+
+CREATE TRIGGER availability_exceptions_update_bumps_data_version AFTER UPDATE ON availability_exceptions BEGIN
+  UPDATE data_version SET value = value + 1 WHERE id = 1;
+END;
+
+CREATE TRIGGER availability_exceptions_delete_bumps_data_version AFTER DELETE ON availability_exceptions BEGIN
+  UPDATE data_version SET value = value + 1 WHERE id = 1;
+END;
+
+CREATE TRIGGER settings_scheduling_update_bumps_data_version
+  AFTER UPDATE OF preferred_session_minutes, break_minutes, daily_limit_minutes,
+    exam_revision_days ON settings
+  WHEN OLD.preferred_session_minutes IS NOT NEW.preferred_session_minutes
+    OR OLD.break_minutes IS NOT NEW.break_minutes
+    OR OLD.daily_limit_minutes IS NOT NEW.daily_limit_minutes
+    OR OLD.exam_revision_days IS NOT NEW.exam_revision_days
+BEGIN
+  UPDATE data_version SET value = value + 1 WHERE id = 1;
+END;
